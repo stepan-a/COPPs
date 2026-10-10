@@ -35,7 +35,7 @@ end
 if isfile([filename_stub '_dynamic.m'])
 load([filename_stub,'_results.mat'],'-mat','M_','oo_');
 else
-load([filename_stub,'\Output\',filename_stub,'_results.mat'],'-mat','M_','oo_');
+load(fullfile(filename_stub,'Output',[filename_stub,'_results.mat']),'-mat','M_','oo_');
 end
 
 [m_sr, Shocks_u, t0_inherited] = Fetch_model_from_Dynare(M_,oo_,params.PlannerDiscountFactor,params.PolicyInstrumentsAndShocks,params.LossFunctionVariables);
