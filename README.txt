@@ -33,6 +33,14 @@ For further information, visit https://github.com/COPPsToolkit/COPPs
 
 --------------------------------------------------------------
 
+Requirements:
+
+This version requires the unstable version of Dynare (https://www.dynare.org/download/),
+which generates the sparse representation of the model. A version compatible with
+Dynare 5.x is kept in the dynare-5.x branch.
+
+--------------------------------------------------------------
+
 Content:
 
 
