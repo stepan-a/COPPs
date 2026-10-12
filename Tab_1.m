@@ -3,103 +3,440 @@
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
-tic;run('IndividualProjections/Run_COPPs_Fig_2_a');toc;close all;clc
-proj.fig2a.params   = params;
+tic;
+% Fig_2_a (formerly IndividualProjections/Run_COPPs_Fig_2_a.m)
+kappa   = 0.1275;
+epsilon = 6;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3'))
+dynare GaliNK3 -DSMOOTHER nograph noclearall
+plotting.VarsToPlot = {...
+    'pinf_ann',[-4,1],'Inflation'  ;...
+    'og'      ,[-4,1],'Output gap' ;...
+    'r_ann'   ,[-1,5],'Policy rate';...
+    };
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_2_a', ...
+                           'planner_discount_factor',       'beta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'loss_function_weights',         [1,alpha_x], ...
+                           'plotting',                      plotting);
+cd(root)
+params = oo_.copps.Fig_2_a.params;
+params.plotting.P_past   = 4;
+params.plotting.P_future = 41;
+copps.plot(oo_.copps.Fig_2_a, params);
+toc;close all;clc
+proj.fig2a.params   = oo_.copps.Fig_2_a.params;
 proj.fig2a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_2_b');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig2b.params   = params;
+tic;
+% Fig_2_b (formerly IndividualProjections/Run_COPPs_Fig_2_b.m)
+kappa   = 0.1275;
+epsilon = 6;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3'))
+dynare GaliNK3 -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_2_b', ...
+                           'planner_discount_factor',       'beta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig2b.params   = oo_.copps.Fig_2_b.params;
 proj.fig2b.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_4_a');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4a.params   = params;
+tic;
+% Fig_4_a (formerly IndividualProjections/Run_COPPs_Fig_4_a.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_a', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4a.params   = oo_.copps.Fig_4_a.params;
 proj.fig4a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_4_b');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4b.params   = params;
+tic;
+% Fig_4_b (formerly IndividualProjections/Run_COPPs_Fig_4_b.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_b', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4b.params   = oo_.copps.Fig_4_b.params;
 proj.fig4b.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_8_b');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig8b.params   = params;
+tic;
+% Fig_8_b (formerly IndividualProjections/Run_COPPs_Fig_8_b.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_b', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'd_term',                        6, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig8b.params   = oo_.copps.Fig_8_b.params;
 proj.fig8b.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_8_c');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig8c.params   = params;
+tic;
+% Fig_8_c (formerly IndividualProjections/Run_COPPs_Fig_8_c.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_c', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'd_term',                        10, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig8c.params   = oo_.copps.Fig_8_c.params;
 proj.fig8c.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_9_a');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig9a.params   = params;
+tic;
+% Fig_9_a (formerly IndividualProjections/Run_COPPs_Fig_9_a.m)
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_9_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25*1,4], ...
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig9a.params   = oo_.copps.Fig_9_a.params;
 proj.fig9a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_10_a');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig10a.params   = params;
+tic;
+% Fig_10_a (formerly IndividualProjections/Run_COPPs_Fig_10_a.m)
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER -DFlatPC nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_10_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25*1,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig10a.params   = oo_.copps.Fig_10_a.params;
 proj.fig10a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_11_a');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig11a.params   = params;
+tic;
+% Fig_11_a (formerly IndividualProjections/Run_COPPs_Fig_11_a.m)
+cd(fullfile(root, 'Models/SimsWu'))
+dynare SWu20 -DSMOOTHER -DLOAD_ESTIMATED_PARAMS nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_11_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig11a.params   = oo_.copps.Fig_11_a.params;
 proj.fig11a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_11_c');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig11c.params   = params;
+tic;
+% Fig_11_c (formerly IndividualProjections/Run_COPPs_Fig_11_c.m)
+cd(fullfile(root, 'Models/SimsWu'))
+dynare SWu20 -DSMOOTHER -DLOAD_ESTIMATED_PARAMS nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_11_c', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr';'bcb';'dbcb'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'; 'qeobs','eb'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4,0.57,4.58], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'qe_dev_max',                    [3:3:60], ... % qe: Allow max increase of 3PP per quarter
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig11c.params   = oo_.copps.Fig_11_c.params;
 proj.fig11c.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_13_a');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig13a.params   = params;
+tic;
+% Fig_13_a (formerly IndividualProjections/Run_COPPs_Fig_13_a.m)
+cd(fullfile(root, 'Models/SimsWu'))
+dynare SWu20 -DSMOOTHER -DLOAD_ESTIMATED_PARAMS nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_13_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'policy_type',                   'DIS', ... % Choice: COM, DIS
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig13a.params   = oo_.copps.Fig_13_a.params;
 proj.fig13a.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_13_b');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig13b.params   = params;
+tic;
+% Fig_13_b (formerly IndividualProjections/Run_COPPs_Fig_13_b.m)
+cd(fullfile(root, 'Models/SimsWu'))
+dynare SWu20 -DSMOOTHER -DLOAD_ESTIMATED_PARAMS nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_13_b', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr';'bcb';'dbcb'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'; 'qeobs','eb'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4,0.57,4.58], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'qe_dev_max',                    [3:3:60], ... % qe: Allow max increase of 3PP per quarter
+                           'policy_type',                   'DIS', ... % Choice: COM, DIS
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+toc;close all;clc
+proj.fig13b.params   = oo_.copps.Fig_13_b.params;
 proj.fig13b.toc      = toc;
-save('TimingInfo','proj')
 
 %%
-tic;run('IndividualProjections/Run_COPPs_Fig_4_a_tempH20');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4aH20.params   = params;
+tic;
+% Fig_4_a_tempH20 (formerly IndividualProjections/Run_COPPs_Fig_4_a_tempH20.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_a_tempH20', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      20, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4aH20.params   = oo_.copps.Fig_4_a_tempH20.params;
 proj.fig4aH20.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_4_a_tempH40');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4aH40.params   = params;
+tic;
+% Fig_4_a_tempH40 (formerly IndividualProjections/Run_COPPs_Fig_4_a_tempH40.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_a_tempH40', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      40, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4aH40.params   = oo_.copps.Fig_4_a_tempH40.params;
 proj.fig4aH40.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_4_b_tempH20');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4bH20.params   = params;
+tic;
+% Fig_4_b_tempH20 (formerly IndividualProjections/Run_COPPs_Fig_4_b_tempH20.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_b_tempH20', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      20, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4bH20.params   = oo_.copps.Fig_4_b_tempH20.params;
 proj.fig4bH20.toc      = toc;
-save('TimingInfo','proj')
 
-tic;run('IndividualProjections/Run_COPPs_Fig_4_b_tempH40');toc;close all;clc
-load('TimingInfo','proj')
-proj.fig4bH40.params   = params;
+tic;
+% Fig_4_b_tempH40 (formerly IndividualProjections/Run_COPPs_Fig_4_b_tempH40.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_b_tempH40', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      40, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+toc;close all;clc
+proj.fig4bH40.params   = oo_.copps.Fig_4_b_tempH40.params;
 proj.fig4bH40.toc      = toc;
-save('TimingInfo','proj')
 
 %%
 fprintf(' 2 & NK3 & 1 & COM & UNC & %2.0f & %2.2f\\\\\n',[proj.fig2a.params.H_policy,proj.fig2a.toc]);
@@ -118,4 +455,3 @@ fprintf(' 11 & SWu20 & 1 & COM & CON & %2.0f & %2.2f\\\\\n',[proj.fig11a.params.
 fprintf(' 11 & SWu20 & 2 & COM & CON & %2.0f & %2.2f\\\\\n',[proj.fig11c.params.H_policy,proj.fig11c.toc]);
 fprintf(' 13 & SWu20 & 1 & DIS & CON & %2.0f & %2.2f\\\\\n',[proj.fig13a.params.H_policy,proj.fig13a.toc]);
 fprintf(' 13 & SWu20 & 2 & DIS & CON & %2.0f & %2.2f\\\\\n',[proj.fig13b.params.H_policy,proj.fig13b.toc]);
-

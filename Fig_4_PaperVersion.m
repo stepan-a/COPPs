@@ -1,23 +1,71 @@
-% Script to create Figure 4 in 
+% Script to create Figure 4 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_4_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_4a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_4_a (formerly IndividualProjections/Run_COPPs_Fig_4_a.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_a', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_4_a.simple_rules;
+projections_all.COPPs_4a = oo_.copps.Fig_4_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_4_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_4b = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_4_b (formerly IndividualProjections/Run_COPPs_Fig_4_b.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_4_b', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.COPPs_4b = oo_.copps.Fig_4_b.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_4a.data          , '--' , 1 ,[0,0,1], 'Commitment'; ...
@@ -34,4 +82,4 @@ params.plotting.P_past   = 4;
 params.plotting.P_future = 16;
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);

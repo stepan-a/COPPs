@@ -1,23 +1,49 @@
-% Script to create Figure 3 in 
+% Script to create Figure 3 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_3_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_3a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_3_a (formerly IndividualProjections/Run_COPPs_Fig_3_a.m)
+kappa   = 0.1275;
+epsilon = 6;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3'))
+dynare GaliNK3_costpush_per -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_3_a', ...
+                           'planner_discount_factor',       'beta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_3_a.simple_rules;
+projections_all.COPPs_3a = oo_.copps.Fig_3_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_3_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_3b = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_3_b (formerly IndividualProjections/Run_COPPs_Fig_3_b.m)
+kappa   = 0.1275;
+epsilon = 6;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_3_b', ...
+                           'planner_discount_factor',       'beta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'policy_type',                   'DIS', ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.COPPs_3b = oo_.copps.Fig_3_b.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_3a.data          , '--' , 1 ,[0,0,1], 'Commitment'; ...
@@ -34,4 +60,4 @@ params.plotting.P_past   = 4;
 params.plotting.P_future = 25;
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);

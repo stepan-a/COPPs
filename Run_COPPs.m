@@ -10,47 +10,24 @@
 %% ########################################################################
 %% ##################             Preamble               ##################
 %% ########################################################################
-%% 
+%%
 clear;
 clc;
 
-% Add toolkit to matlab path 
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
-%% ########################################################################
-%% ##################        Required user input         ##################
-%% ########################################################################
-%% 
-
-% Model details
-params.ModelDirectory         = 'Models/SW07';
-params.ModelFilename          = 'Smets_Wouters_2007_GB09';
-params.PlannerDiscountFactor  = 'beta_ss';
-
-% Target variables and policy variables
-params.LossFunctionVariables       = {'obs_pinf_4q';'ygap';'dr'};
-params.PolicyInstrumentsAndShocks  =  {'r' ,'em'};
-
-% Timeseries
-params.PastPeriods          = 219;  % 2009 March
 pramas.T_full               = 78; % How far into the future to roll the forecast forward.
-params.plotting.first_date  = datetime(1954,7,01); % Set the first date of the series
-params.plotting.freq        = 'quarter'; % Frequency of data (month/quarter/year)
-
-
-%% ########################################################################
-%% ##################        Optional user input         ##################
-%% ########################################################################
-%% 
-
-%% ########################################################################
-%% #########        No user input required below this line        #########
-%% ########################################################################
-%% Set non-user defined values to default
-params = SetRemainingParameters(params);
-
-%% Solve for the policy projections
-projections = SolveCOPPs(params);
-
-%% Plot everything
-PlotCOPPs(projections, params);
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER nograph noclearall
+plotting.first_date  = datetime(1954,7,01); % Set the first date of the series
+plotting.freq        = 'quarter'; % Frequency of data (month/quarter/year)
+oo_ = copps.solve(M_, oo_, 'name',                          'projection', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'plotting',                      plotting);
+cd(root)
+params = oo_.copps.projection.params;
+copps.plot(oo_.copps.projection, params);

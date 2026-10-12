@@ -1,23 +1,47 @@
-% Script to create Figure 13 in 
+% Script to create Figure 13 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_13_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_13a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_13_a (formerly IndividualProjections/Run_COPPs_Fig_13_a.m)
+cd(fullfile(root, 'Models/SimsWu'))
+dynare SWu20 -DSMOOTHER -DLOAD_ESTIMATED_PARAMS nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_13_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'policy_type',                   'DIS', ... % Choice: COM, DIS
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_13_a.simple_rules;
+projections_all.COPPs_13a = oo_.copps.Fig_13_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_13_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_13b = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_13_b (formerly IndividualProjections/Run_COPPs_Fig_13_b.m)
+cd(fullfile(root, 'Models/SimsWu'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_13_b', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr';'bcb';'dbcb'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'er'; 'qeobs','eb'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4,0.57,4.58], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'qe_dev_max',                    [3:3:60], ... % qe: Allow max increase of 3PP per quarter
+                           'policy_type',                   'DIS', ... % Choice: COM, DIS
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.COPPs_13b = oo_.copps.Fig_13_b.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_13a.data          , ':' , 1 ,[0,0,1], 'SWu20: rates only'; ...
@@ -37,4 +61,4 @@ params.plotting.first_date  = datetime(1954,7,01); % Set the first date of the s
 params.plotting.freq        = 'quarter'; % Frequency of data (month/quarter/year)
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);

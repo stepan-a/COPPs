@@ -1,33 +1,132 @@
-% Script to create Figure 8 in 
+% Script to create Figure 8 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_8_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_8a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_8_a (formerly IndividualProjections/Run_COPPs_Fig_8_a.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+dynare NK3ZLB -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_a', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'd_term',                        1, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_8_a.simple_rules;
+projections_all.COPPs_8a = oo_.copps.Fig_8_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_8_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_8b = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_8_b (formerly IndividualProjections/Run_COPPs_Fig_8_b.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_b', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'd_term',                        6, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.COPPs_8b = oo_.copps.Fig_8_b.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_8_c')
-load('FigureInfo','projections_all')
-projections_all.COPPs_8c = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_8_c (formerly IndividualProjections/Run_COPPs_Fig_8_c.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_c', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'policy_type',                   'DIS', ...
+                           'd_term',                        10, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.COPPs_8c = oo_.copps.Fig_8_c.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_8_d')
-load('FigureInfo','projections_all')
-projections_all.COPPs_8d = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_8_d (formerly IndividualProjections/Run_COPPs_Fig_8_d.m)
+siggma = 1;
+varphi = 5;
+theta  = 3/4;
+betta  = 0.99;
+alppha = 1/4;
+epsilon= 9;
+Omega  = (1-alppha)/(1-alppha+alppha*epsilon);       %defined on page 60
+lambda = (1-theta)*(1-betta*theta)/theta*Omega;      %defined on page 61
+kappa  = lambda*(siggma+(varphi+alppha)/(1-alppha)); %defined on page 63
+vartheta= kappa/epsilon;
+alpha_x = kappa/epsilon;
+cd(fullfile(root, 'Models/GaliNK3_ZLB'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_8_d', ...
+                           'planner_discount_factor',       'betta', ...
+                           'loss_function_variables',       {'pinf';'og'}, ...
+                           'policy_instruments_and_shocks', {'r','er'}, ...
+                           'past_periods',                  50, ...
+                           'alpha',                         1, ...
+                           't_loss',                        60, ...
+                           'h_policy',                      60, ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      0, ...
+                           'loss_function_weights',         [1,alpha_x]);
+cd(root)
+projections_all.COPPs_8d = oo_.copps.Fig_8_d.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_8a.data          , '-.' , 1 ,[0,1,0], 'Discretion (D = 1)'; ...
@@ -43,7 +142,7 @@ params.plotting.VarsToPlot = {...
     };
 
 params.plotting.P_past   = 4;
-params.plotting.P_future = 17; 
+params.plotting.P_future = 17;
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);

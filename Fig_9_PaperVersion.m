@@ -1,23 +1,50 @@
-% Script to create Figure 9 in 
+% Script to create Figure 9 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_9_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_9a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_9_a (formerly IndividualProjections/Run_COPPs_Fig_9_a.m)
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_9_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25*1,4], ...
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_9_a.simple_rules;
+projections_all.COPPs_9a = oo_.copps.Fig_9_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_9_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_9b = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_9_b (formerly IndividualProjections/Run_COPPs_Fig_9_b.m)
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER -DFlatPC nograph noclearall
+plotting.VarsToPlot = {...
+    'obs_pinf_4q' , [ -1 ,  4 ]  , 'Inflation (annual, P.P.)'     ; ...
+    'ygap'        , [ -9 ,  6 ]  , 'Output gap (P.P.)'            ; ...
+    'obs_r_ann'   , [ -8 ,  7]   , 'Interest rate (annual, P.P.)' ; ...
+    'qeobs'       , [ -5 ,  50 ] , 'Asset holdings (% of GDP) '   ; ...
+    };
+plotting.first_date = datetime(1954,7,01); % Set the first date of the series
+plotting.freq       = 'quarter'; % Frequency of data (month/quarter/year)
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_9_b', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25*1,4], ...
+                           't_full',                        78, ... % How far into the future to roll the forecast forward.
+                           'plotting',                      plotting);
+cd(root)
+params = oo_.copps.Fig_9_b.params;
+copps.plot(oo_.copps.Fig_9_b, params);
+projections_all.COPPs_9b = oo_.copps.Fig_9_b.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_9a.data          , '--' , 1 ,[1,0,0], 'SW07: standard'; ...
@@ -37,4 +64,4 @@ params.plotting.first_date = datetime(1954,7,01); % Set the first date of the se
 params.plotting.freq       = 'quarter'; % Frequency of data (month/quarter/year)
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);

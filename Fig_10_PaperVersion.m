@@ -1,28 +1,60 @@
-% Script to create Figure 10 in 
+% Script to create Figure 10 in
 % **de Groot, O., F. Mazelis, R. Motto, A. Ristiniemi**
 % "A Toolkit for Computing Constrained Optimal Policy Projections (COPPs)"
 %% Preamble
 clear
-addpath('Toolkit');
+% Dynare (with the copps package) must be in the MATLAB path.
+root = pwd;
 
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_10_a')
-projections_all.simple_rules = projections.simple_rules; 
-projections_all.COPPs_10a = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_10_a (formerly IndividualProjections/Run_COPPs_Fig_10_a.m)
+cd(fullfile(root, 'Models/SW07'))
+dynare Smets_Wouters_2007_GB09 -DSMOOTHER -DFlatPC nograph noclearall
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_10_a', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25*1,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.simple_rules = oo_.copps.Fig_10_a.simple_rules;
+projections_all.COPPs_10a = oo_.copps.Fig_10_a.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_10_b')
-load('FigureInfo','projections_all')
-projections_all.COPPs_10b = projections.COPPs; 
-save('FigureInfo','projections_all')
+% Fig_10_b (formerly IndividualProjections/Run_COPPs_Fig_10_b.m)
+cd(fullfile(root, 'Models/SW07'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_10_b', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ... % 2009 March
+                           'loss_function_weights',         [1,0.25,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           'alpha',                         1-0.3*0, ...
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.COPPs_10b = oo_.copps.Fig_10_b.COPPs;
 %% Run individual script
-run('IndividualProjections/Run_COPPs_Fig_10_c')
-load('FigureInfo','projections_all')
-projections_all.COPPs_10c = projections.COPPs; 
-save('FigureInfo','projections_all')
-%% Load relevant info
-clear
-load('FigureInfo')
+% Fig_10_c (formerly IndividualProjections/Run_COPPs_Fig_10_c.m)
+cd(fullfile(root, 'Models/SW07'))
+oo_ = copps.solve(M_, oo_, 'name',                          'Fig_10_c', ...
+                           'planner_discount_factor',       'beta_ss', ...
+                           'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
+                           'policy_instruments_and_shocks', {'r' ,'em'}, ...
+                           'past_periods',                  219, ...
+                           'loss_function_weights',         [1,0.25*0,4], ...
+                           'constraint',                    'ON', ...
+                           'rate_min',                      0.1, ... % ELB in annual policy rate
+                           'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
+                           't_full',                        78); % How far into the future to roll the forecast forward.
+cd(root)
+projections_all.COPPs_10c = oo_.copps.Fig_10_c.COPPs;
+clear params
 %% Set preferences
 params.plotting.Data = {projections_all.simple_rules.data   , '-'  , 1 ,[0,0,0], 'Baseline' ; ...
         projections_all.COPPs_10a.data          , '--' , 1 ,[0,0,1], 'SW07'; ...
@@ -43,4 +75,4 @@ params.plotting.first_date = datetime(1954,7,01); % Set the first date of the se
 params.plotting.freq       = 'quarter'; % Frequency of data (month/quarter/year)
 
 %% Plot chart
-PlotCOPPs(projections_all, params);
+copps.plot(projections_all, params);
