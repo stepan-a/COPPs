@@ -25,7 +25,6 @@ projections_all.simple_rules = oo_.copps.Fig_11_a.simple_rules;
 projections_all.COPPs_11a = oo_.copps.Fig_11_a.COPPs;
 %% Run individual script
 % Fig_11_b (formerly IndividualProjections/Run_COPPs_Fig_11_b.m)
-paraas.T_full              = 78; % How far into the future to roll the forecast forward.
 cd(fullfile(root, 'Models/SimsWu'))
 oo_ = copps.solve(M_, oo_, 'name',                          'Fig_11_b', ...
                            'planner_discount_factor',       'beta_ss', ...
@@ -38,7 +37,8 @@ oo_ = copps.solve(M_, oo_, 'name',                          'Fig_11_b', ...
                            'policy_rate_steady_state',      'ss_r_ann', ... % Parameter name of annual StSt policy rate
                            'qe_dev_max',                    [3:3:60], ... % qe: Allow max increase of 3PP per quarter
                            'rate_dev_min',                  0, ...
-                           'rate_dev_max',                  0);
+                           'rate_dev_max',                  0, ...
+                           't_full',                        78); % How far into the future to roll the forecast forward.
 cd(root)
 projections_all.COPPs_11b = oo_.copps.Fig_11_b.COPPs;
 %% Run individual script

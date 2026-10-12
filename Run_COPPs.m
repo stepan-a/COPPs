@@ -17,7 +17,6 @@ clc;
 % Dynare (with the copps package) must be in the MATLAB path.
 root = pwd;
 
-pramas.T_full               = 78; % How far into the future to roll the forecast forward.
 cd(fullfile(root, 'Models/SW07'))
 dynare Smets_Wouters_2007_GB09 -DSMOOTHER nograph noclearall
 plotting.first_date  = datetime(1954,7,01); % Set the first date of the series
@@ -27,6 +26,7 @@ oo_ = copps.solve(M_, oo_, 'name',                          'projection', ...
                            'loss_function_variables',       {'obs_pinf_4q';'ygap';'dr'}, ...
                            'policy_instruments_and_shocks', {'r' ,'em'}, ...
                            'past_periods',                  219, ... % 2009 March
+                           't_full',                        78, ... % How far into the future to roll the forecast forward.
                            'plotting',                      plotting);
 cd(root)
 params = oo_.copps.projection.params;

@@ -111,6 +111,10 @@ copps-toolkit-results, in this repository and in Dynare):
 Among the projections of the paper, only Figure 13b changes significantly (the optimal loss
 falls from 38% to 25% of the baseline loss); the other changes are below 5e-6.
 
+Run_COPPs.m and Figure 11b now use the forecast horizon of 78 periods that they set (the
+toolkit ignored it because of misspelt structure names, and used 100 periods); the first 78
+periods of the projections are unchanged.
+
 --------------------------------------------------------------
 
 Content:
