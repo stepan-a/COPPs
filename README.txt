@@ -77,8 +77,20 @@ The options of copps.solve are the parameters of the toolkit described in the ma
   QeMin, QeMax                qe_min, qe_max
   QeDevMin, QeDevMax          qe_dev_min, qe_dev_max
   MaxIter, Update, Crit       max_iter, update, crit
-  PlotConstraints, Smoothing  plot_constraints, smoothing
   plotting                    plotting
+
+PlotConstraints and Smoothing (not used) are removed. New options:
+
+  bounds                      Bounds on any instrument, given by name, as a cell array with one row
+                              per bound: {instrument, kind, value; ...}, where kind is 'lower' or
+                              'upper' (bounds on the level of the instrument, in deviation from its
+                              steady state, in model units), 'dev_min' or 'dev_max' (maximum decrease
+                              or increase relative to the baseline). They replace the bounds given by
+                              the rate_* (first instrument) and qe_* (second instrument) options.
+  noprint                     Do not print anything.
+
+Any number of policy instruments can be used. The plotting options also accept NoDisplay (do not
+display the figures), FileName (save the figures) and GraphFormat (formats of the saved figures).
 
 ModelDirectory, ModelFilename and DynareOptions are not needed anymore: Dynare is run
 before calling copps.solve. The meaning and the default values of the options are
