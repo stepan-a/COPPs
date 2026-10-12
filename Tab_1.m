@@ -448,7 +448,7 @@ fprintf(' 4 & NK3 & 1 & DIS & CON & %2.0f & %2.2f\\\\\n',[proj.fig4bH20.params.H
 fprintf(' 4 & NK3 & 1 & DIS & CON & %2.0f & %2.2f\\\\\n',[proj.fig4bH40.params.H_policy,proj.fig4bH40.toc]);
 fprintf(' 4 & NK3 & 1 & DIS & CON & %2.0f & %2.2f\\\\\n',[proj.fig4b.params.H_policy,proj.fig4b.toc]);
 fprintf(' 8 & NK3 & 1 & LC (D=6) & CON & %2.0f & %2.2f\\\\\n',[proj.fig8b.params.H_policy,proj.fig8b.toc]);
-fprintf(' 8 & NK3 & 1 & LC (D=9) & CON & %2.0f & %2.2f\\\\\n',[proj.fig8c.params.H_policy,proj.fig8c.toc]);
+fprintf(' 8 & NK3 & 1 & LC (D=10) & CON & %2.0f & %2.2f\\\\\n',[proj.fig8c.params.H_policy,proj.fig8c.toc]);
 fprintf(' 9 & SW07 & 1 & COM & UNC & %2.0f & %2.2f\\\\\n',[proj.fig9a.params.H_policy,proj.fig9a.toc]);
 fprintf(' 10 & SW07 & 1 & COM & CON & %2.0f & %2.2f\\\\\n',[proj.fig10a.params.H_policy,proj.fig10a.toc]);
 fprintf(' 11 & SWu20 & 1 & COM & CON & %2.0f & %2.2f\\\\\n',[proj.fig11a.params.H_policy,proj.fig11a.toc]);
