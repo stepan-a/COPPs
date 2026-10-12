@@ -94,7 +94,22 @@ display the figures), FileName (save the figures) and GraphFormat (formats of th
 
 ModelDirectory, ModelFilename and DynareOptions are not needed anymore: Dynare is run
 before calling copps.solve. The meaning and the default values of the options are
-unchanged.
+unchanged, except for the absence of rate_min (see below).
+
+Differences with the results of the toolkit (the state reproducing the toolkit is tagged
+copps-toolkit-results, in this repository and in Dynare):
+
+  - Under discretion, each policymaker imposes the bounds on the instruments in the periods
+    of its term (the last one also after the policy horizon), instead of all the following
+    periods with the bounds already violated set to 0, which could lead to paths violating
+    the bounds (e.g. the policy rate below the ELB in Figure 13b).
+  - Under discretion, the bounds on the second instrument (QE) are built as those on the
+    policy rate (the toolkit used the distances of the baseline to the bounds as levels).
+  - Without rate_min, there is no lower bound on the policy rate (the toolkit imposed that
+    the policy rate remains above its steady state).
+
+Among the projections of the paper, only Figure 13b changes significantly (the optimal loss
+falls from 38% to 25% of the baseline loss); the other changes are below 5e-6.
 
 --------------------------------------------------------------
 
